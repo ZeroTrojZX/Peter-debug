@@ -78,7 +78,7 @@ class Roles(commands.Cog):
             await ctx.send(embed=embed, ephemeral=True)
 
     @custom.command(name="name", description="Modifys the name of a custom role")          
-    async def name(self, ctx: commands.Context, name: str):
+    async def name(self, ctx: commands.Context, *, name: str):
         info = roles_db.find_one({"user_id": ctx.author.id})
         if info:
             role_id = int(info["role_id"])
