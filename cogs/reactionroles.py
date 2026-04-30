@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from utils.variables import admin
+from utils.functions import rate_limited_send
 from views.ReactionRoles.ReactionRoles import PingReactionRoles, ColorReactionRoles, LeaveReactionRoles
 
 class ReactionRoles(commands.Cog):
@@ -17,15 +18,15 @@ class ReactionRoles(commands.Cog):
         if any(r.id in admin for r in ctx.author.roles) or ctx.author.guild_permissions.administrator:
             try:
                 view = PingReactionRoles()
-                await ctx.send(view=view)
+                await rate_limited_send(ctx.channel, view=view)
                 view = LeaveReactionRoles()
-                await ctx.send(view=view)
+                await rate_limited_send(ctx.channel, view=view)
                 view = ColorReactionRoles()
-                await ctx.send(view=view)
+                await rate_limited_send(ctx.channel, view=view)
             except Exception as E:
-                await ctx.send(E)
+                await rate_limited_send(ctx.channel, str(E))
         else:
-            await ctx.send('no perms.')
+            await rate_limited_send(ctx.channel, 'no perms.')
     
     
 async def setup(bot):

@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from colour import Color
 from pymongo import MongoClient
@@ -5,6 +6,31 @@ from dotenv import load_dotenv
 import os
 
 from discord import ui, ButtonStyle, Colour
+
+# Global rate limiter for API calls - wait 10 seconds between messages
+_last_message_time = 0
+_rate_limit_lock = asyncio.Lock()
+RATE_LIMIT_DELAY = 10  # seconds between messages
+
+
+async def rate_limited_send(channel, content=None, **kwargs):
+    """
+    Send a message with global rate limiting (10 seconds between messages).
+    This applies universally to all users to prevent API rate limiting issues.
+    """
+    global _last_message_time
+    
+    async with _rate_limit_lock:
+        current_time = asyncio.get_event_loop().time()
+        time_since_last = current_time - _last_message_time
+        
+        if time_since_last < RATE_LIMIT_DELAY and _last_message_time != 0:
+            wait_time = RATE_LIMIT_DELAY - time_since_last
+            await asyncio.sleep(wait_time)
+        
+        message = await channel.send(content, **kwargs)
+        _last_message_time = asyncio.get_event_loop().time()
+        return message
 
 load_dotenv()
 mongo = MongoClient(os.getenv("MONGODB_URL"))

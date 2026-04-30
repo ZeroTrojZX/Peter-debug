@@ -5,7 +5,7 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from utils.variables import admin
-from utils.functions import parse_color, get_valid_roles
+from utils.functions import parse_color, get_valid_roles, rate_limited_send
 import pymongo
 from pymongo.errors import PyMongoError
 from views.Roles.RoleSelection import RoleSelectView
@@ -29,10 +29,10 @@ class Roles(commands.Cog):
             try:
                 roles_db.insert_one({"user_id": member.id, "roles": [role.id]})
                 embed = discord.Embed(title="<:Check:1490727471761457335> Registered", description=f"{role.mention} has been registered for {member.mention}", color=discord.Color.green())
-                await ctx.send(embed=embed)
+                await rate_limited_send(ctx.channel, embed=embed)
             except PyMongoError as exc:
                 embed = discord.Embed(title="<:Cross:1490727525356278064> Failed to Register", description=f"I have recieved an error. (`{exc}`)", color=discord.Color.red())
-                await ctx.send(embed=embed)
+                await rate_limited_send(ctx.channel, embed=embed)
         else:
             embed = discord.Embed(title="<:Cross:1490727525356278064> Lack of Permissions", description=f"You do not have permisson to execute this command.", color=discord.Color.red())
             await ctx.send(embed=embed, ephemeral=True)
@@ -71,7 +71,7 @@ class Roles(commands.Cog):
             roles_db.insert_one({"user_id": ctx.author.id, "roles": [role.id]})
         
         embed = discord.Embed(title="<:Check:1490727471761457335> Role Created", description=f"I have succesfully created {role.mention}", color=discord.Color.green())
-        await ctx.send(embed=embed, ephemeral=True)
+        await rate_limited_send(ctx.channel, embed=embed)
 
     @custom.command(name="color", description="Modifys the color of a custom role")          
     async def color(self, ctx: commands.Context, color1: str, color2: str=None):
@@ -104,7 +104,7 @@ class Roles(commands.Cog):
             else:
                 role_color2 = parse_color(color2)
         except:
-            await ctx.send("Invalid hex code.")
+            await rate_limited_send(ctx.channel, "Invalid hex code.")
             return
         
         role = ctx.guild.get_role(selected_role_id)
@@ -114,7 +114,7 @@ class Roles(commands.Cog):
         
         await role.edit(color=role_color1, secondary_color=role_color2)
         embed = discord.Embed(title="<:Check:1490727471761457335> Color Changed", description=f"Succesfully changed role color.", color=discord.Color.green())
-        await ctx.send(embed=embed, ephemeral=True)
+        await rate_limited_send(ctx.channel, embed=embed)
 
     @custom.command(name="name", description="Modifys the name of a custom role")          
     async def name(self, ctx: commands.Context, *, name: str):
@@ -148,7 +148,7 @@ class Roles(commands.Cog):
         
         await role.edit(name=name)
         embed = discord.Embed(title="<:Check:1490727471761457335> Name Changed", description=f"Succesfully changed role name to `{name}`", color=discord.Color.green())
-        await ctx.send(embed=embed, ephemeral=True)     
+        await rate_limited_send(ctx.channel, embed=embed)
 
     @custom.command(name="icon", description="Modifys the icon of a custom role")
     async def icon(self, ctx: commands.Context, icon: discord.Attachment):
@@ -188,7 +188,7 @@ class Roles(commands.Cog):
         await role.edit(display_icon=image_bytes)
         embed = discord.Embed(title="<:Check:1490727471761457335> Icon Changed", description=f"Succesfully changed role icon.", color=discord.Color.green())
         embed.set_thumbnail(url=icon.url)
-        await ctx.send(embed=embed, ephemeral=True)
+        await rate_limited_send(ctx.channel, embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Roles(bot))

@@ -1,5 +1,6 @@
 import discord
 from discord import ui
+from utils.functions import rate_limited_send
 
 class PingDropdown(ui.Select):
     def __init__(self):
@@ -24,15 +25,15 @@ class PingDropdown(ui.Select):
 
         role = interaction.guild.get_role(int(id))
         if role is None:
-            await interaction.followup.send("Failed to locate role.", ephemeral=True)
+            await rate_limited_send(interaction.channel, "Failed to locate role.", ephemeral=True)
             return
 
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role)
-            await interaction.followup.send(f"Removed role **{role.name}**", ephemeral=True)
+            await rate_limited_send(interaction.channel, f"Removed role **{role.name}**", ephemeral=True)
         else:
             await interaction.user.add_roles(role)
-            await interaction.followup.send(f"Added role **{role.name}**", ephemeral=True)
+            await rate_limited_send(interaction.channel, f"Added role **{role.name}**", ephemeral=True)
 
 
 class PingReactionRoles(ui.LayoutView):
@@ -81,15 +82,15 @@ class ColorDropdown(ui.Select):
 
         role = interaction.guild.get_role(int(id))
         if role is None:
-            await interaction.followup.send("Failed to locate role.", ephemeral=True)
+            await rate_limited_send(interaction.channel, "Failed to locate role.", ephemeral=True)
             return
 
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role)
-            await interaction.followup.send(f"Removed role **{role.name}**", ephemeral=True)
+            await rate_limited_send(interaction.channel, f"Removed role **{role.name}**", ephemeral=True)
         else:
             await interaction.user.add_roles(role)
-            await interaction.followup.send(f"Added role **{role.name}**", ephemeral=True)
+            await rate_limited_send(interaction.channel, f"Added role **{role.name}**", ephemeral=True)
         
         
 
@@ -131,15 +132,15 @@ class LeaveDropdown(ui.Select):
 
         role = interaction.guild.get_role(int(id))
         if role is None:
-            await interaction.followup.send("Failed to locate role.", ephemeral=True)
+            await rate_limited_send(interaction.channel, "Failed to locate role.", ephemeral=True)
             return
 
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role)
-            await interaction.followup.send(f"Removed role **{role.name}**", ephemeral=True)
+            await rate_limited_send(interaction.channel, f"Removed role **{role.name}**", ephemeral=True)
         else:
             await interaction.user.add_roles(role)
-            await interaction.followup.send(f"Added role **{role.name}**", ephemeral=True)
+            await rate_limited_send(interaction.channel, f"Added role **{role.name}**", ephemeral=True)
 
 class LeaveReactionRoles(ui.LayoutView):
     def __init__(self):

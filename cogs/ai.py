@@ -1,7 +1,10 @@
 import os
+import asyncio
 import discord
 from discord.ext import commands
 from groq import Groq
+
+from utils.functions import rate_limited_send
 
 
 class AI(commands.Cog):
@@ -34,7 +37,7 @@ class AI(commands.Cog):
             return
 
         if not self.client:
-            await message.channel.send("Groq API key is not configured. Please add GROQ_API_KEY to your .env file.")
+            await rate_limited_send(message.channel, "Groq API key is not configured. Please add GROQ_API_KEY to your .env file.")
             return
 
         try:
@@ -60,7 +63,6 @@ class AI(commands.Cog):
 Your personality traits:
 - You are extremely dramatic and emotional
 - You stutter when surprised or scared (W-WAIT, W-WHAT)
-- You call people "SENPAI" 
 - You are protective of your title as "King of Free Admin"
 - You often have tears in your eyes and your voice trembles
 - You puffed out your chest with determination
@@ -100,16 +102,16 @@ Example responses:
                 # Split response if too long
                 if len(response) > 2000:
                     chunks = [response[i:i+2000] for i in range(0, len(response), 2000)]
-                    # Reply to the first chunk, send the rest normally
+                    # Reply to the first chunk, send the rest with rate limiting
                     await message.reply(chunks[0])
                     for chunk in chunks[1:]:
-                        await message.channel.send(chunk)
+                        await rate_limited_send(message.channel, chunk)
                 else:
                     await message.reply(response)
 
         except Exception as e:
             print(f"AI Error: {e}")
-            await message.reply(f"An error occurred while processing your message.")
+            await rate_limited_send(message.channel, f"An error occurred while processing your message.")
 
 
 async def setup(bot):

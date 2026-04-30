@@ -8,7 +8,7 @@ import os
 from pymongo.errors import PyMongoError
 
 from utils.variables import admin
-from utils.functions import get_valid_roles, make_container
+from utils.functions import get_valid_roles, make_container, rate_limited_send
 from views.Crashes.CrashSelection import CrashSelection
 
 from discord import ui
@@ -41,7 +41,7 @@ class Crashes(commands.Cog):
                 ui.TextDisplay(f"I have succesfully registered `{crash.name}` to `{user.name}`"),
                 accent_color=discord.Color.green()
             )
-            await ctx.send(view=view)
+            await rate_limited_send(ctx.channel, view=view)
         else:
             view = make_container(
                 ui.TextDisplay("### <:Cross:1492630473845772548> No Permission"),
@@ -49,7 +49,7 @@ class Crashes(commands.Cog):
                 ui.TextDisplay("You do not have permisson to execute this command."),
                 accent_color=discord.Color.red()
             )
-            await ctx.send(view=view, ephemeral=True)   
+            await ctx.send(view=view, ephemeral=True)
 
     @crashes.command(name="issue", description="Issue another user one of your crashe roles")  
     async def issue(self, ctx: commands.Context, user: discord.Member):
@@ -63,7 +63,7 @@ class Crashes(commands.Cog):
                 ui.TextDisplay("I was not able to locate any roles under your information."),
                 accent_color=discord.Color.red()
             )
-            await ctx.send(view=view, ephemeral=True)            
+            await ctx.send(view=view, ephemeral=True)
 
         for role_id in info.get("roles", []):
             roles.append(role_id)
@@ -93,7 +93,7 @@ class Crashes(commands.Cog):
                 accent_color=0xF9A825
             )
 
-            await log_channel.send(view=log)
+            await rate_limited_send(log_channel, view=log)
         else:
             role_id = int(roles[0])
             role = ctx.guild.get_role(role_id)
@@ -115,7 +115,7 @@ class Crashes(commands.Cog):
                 accent_color=0xF9A825
             )
 
-            await log_channel.send(view=log)
+            await rate_limited_send(log_channel, view=log)
     
 async def setup(bot):
     await bot.add_cog(Crashes(bot))
